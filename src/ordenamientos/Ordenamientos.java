@@ -1,68 +1,85 @@
 package ordenamientos;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Ordenamientos {
 
-    static BigInteger V[] = new BigInteger[2000];
-    static int n = V.length;
-    
+    static int n = 2000;
+    static BigInteger V[] = new BigInteger[n];
+    static int Iterations = 0;
+    static long Time;
+
     public static void main(String[] args) {
         Fill();
         Scanner sc = new Scanner(System.in);
         ShowMenu();
+        Switch(sc);
+        Show();
+        System.out.println("");
+        System.out.println("Iteraciones: " + Iterations);
+        Time = System.nanoTime() - Time;
+        System.out.println("Tiempo de ejecución: " + Time);
+    }
+
+    static void Switch(Scanner sc) {
         int opc = sc.nextInt();
         switch (opc) {
             case 1:
                 System.out.println("");
                 System.out.println("Select Sort");
+                Time = System.nanoTime();
                 SelectSort();
                 break;
 
             case 2:
                 System.out.println("");
                 System.out.println("Insert Sort");
+                Time = System.nanoTime();
                 InsertSort();
                 break;
 
             case 3:
                 System.out.println("");
                 System.out.println("Shell Sort");
+                Time = System.nanoTime();
                 ShellSort();
                 break;
 
             case 4:
                 System.out.println("");
                 System.out.println("Quick Sort");
-                QuickSort(0, V.length - 1);
-                Show();
+                Time = System.nanoTime();
+                QuickSort(0, n - 1);
                 break;
 
             case 5:
                 System.out.println("");
                 System.out.println("Bubble Sort");
+                Time = System.nanoTime();
                 BubbleSort();
                 break;
 
             case 6:
                 System.out.println("");
                 System.out.println("Heap Sort");
+                Time = System.nanoTime();
                 HeapSort();
-                Show();
                 break;
 
             case 7:
                 System.out.println("");
                 System.out.println("Merge Sort");
-                MergeSort();
-                Show();
+                Time = System.nanoTime();
+                MergeSort(0, n - 1);
                 break;
 
             case 8:
                 System.out.println("");
                 System.out.println("Radix Sort");
+                Time = System.nanoTime();
                 RadixSort();
                 break;
         }
@@ -75,8 +92,12 @@ public class Ordenamientos {
             System.out.println(V[i]);;
         }
     }
-    
-    static void ShowMenu(){
+
+    static void AddIteration() {
+        Iterations++;
+    }
+
+    static void ShowMenu() {
         System.out.println("Seleccionar un ordenamiento para el vector: ");
         System.out.println("1. Select Sort");
         System.out.println("2. Insert Sort");
@@ -87,11 +108,11 @@ public class Ordenamientos {
         System.out.println("7. Merge Sort");
         System.out.println("8. Radix Sort");
     }
-    
-    static void Fill(){
+
+    static void Fill() {
         for (int i = 0; i < n; i++) {
             BigInteger a = new BigInteger(16, new Random()).subtract(new BigInteger("10000000000000"));
-            V[i]=(a.multiply(BigInteger.TEN)).abs();
+            V[i] = (a.multiply(BigInteger.TEN)).abs();
         }
     }
 
@@ -101,7 +122,7 @@ public class Ordenamientos {
         for (int i = 0; i < n; i++) {
             menor = i;
             for (int j = i + 1; j < n; j++) {
-                if (V[j].compareTo(V[menor])==-1) {
+                if (V[j].compareTo(V[menor]) == -1) {
                     menor = j;
                 }
             }
@@ -110,8 +131,8 @@ public class Ordenamientos {
                 V[i] = V[menor];
                 V[menor] = tmp;
             }
+            AddIteration();
         }
-        Show();
     }
 
     static void InsertSort() {
@@ -120,13 +141,13 @@ public class Ordenamientos {
         for (int i = 0; i < n; i++) {
             temp = V[i];
             j = i;
-            while (j > 0 && temp.compareTo(V[j - 1])==-1) {
+            while (j > 0 && temp.compareTo(V[j - 1]) == -1) {
                 V[j] = V[j - 1];
                 j = j - 1;
             }
             V[j] = temp;
+            AddIteration();
         }
-        Show();
     }
 
     static void ShellSort() {
@@ -137,7 +158,7 @@ public class Ordenamientos {
                 j = i - inc;
                 while (j >= 0) {
                     k = j + inc;
-                    if (V[j].compareTo(V[k])==1) {
+                    if (V[j].compareTo(V[k]) == 1) {
                         temp = V[j];
                         V[j] = V[k];
                         V[k] = temp;
@@ -148,8 +169,8 @@ public class Ordenamientos {
                 }
             }
             inc = inc / 2;
+            AddIteration();
         }
-        Show();
     }
 
     static int Partition(int left, int right) {
@@ -157,10 +178,10 @@ public class Ordenamientos {
         BigInteger pivot = V[(left + right) / 2], tmp;
 
         while (i <= j) {
-            while (V[i].compareTo(pivot)==-1) {
+            while (V[i].compareTo(pivot) == -1) {
                 i++;
             }
-            while (V[j].compareTo(pivot)==1) {
+            while (V[j].compareTo(pivot) == 1) {
                 j--;
             }
             if (i <= j) {
@@ -182,11 +203,13 @@ public class Ordenamientos {
         if (index < right) {
             QuickSort(index, right);
         }
+        AddIteration();
     }
 
     static void HeapSort() {
         for (int i = n / 2 - 1; i >= 0; i--) {
-            Heapify(n, i);
+            Heap(n, i);
+            AddIteration();
         }
 
         for (int i = n - 1; i >= 0; i--) {
@@ -195,20 +218,21 @@ public class Ordenamientos {
             V[0] = V[i];
             V[i] = temp;
 
-            Heapify(i, 0);
+            Heap(i, 0);
+            AddIteration();
         }
     }
 
-    static void Heapify(int n, int i) {
+    static void Heap(int n, int i) {
         int largest = i;
         int l = 2 * i + 1;
         int r = 2 * i + 2;
 
-        if (l < n && V[l].compareTo(V[largest])==1) {
+        if (l < n && V[l].compareTo(V[largest]) == 1) {
             largest = l;
         }
 
-        if (r < n && V[r].compareTo(V[largest])==1) {
+        if (r < n && V[r].compareTo(V[largest]) == 1) {
             largest = r;
         }
 
@@ -216,89 +240,105 @@ public class Ordenamientos {
             BigInteger swap = V[i];
             V[i] = V[largest];
             V[largest] = swap;
-            Heapify(n, largest);
+            Heap(n, largest);
         }
     }
 
     static void BubbleSort() {
         for (int i = 0; i < V.length - 1; i++) {
             for (int j = 0; j < V.length - 1; j++) {
-                if (V[j] > V[j + 1]) {
-                    int tmp = V[j + 1];
+                if (V[j].compareTo(V[j + 1]) == -1) {
+                    BigInteger tmp = V[j + 1];
                     V[j + 1] = V[j];
                     V[j] = tmp;
                 }
             }
+            AddIteration();
         }
-        Show();
     }
 
-    static void MergeSort() {
-        int i = 1;
-        for (i = 1; i < V.length; i *= 2) {
-            for (int j = 0; j < V.length; j += i) {
-                int p = i >> 1;
-                Merge(j, j + p - 1, j + p, j + p + p - 1);
-            }
+    static void MergeSort(int lower, int higher) {
+        if (lower < higher) {
+            int middle = lower + (higher - lower) / 2;
+            MergeSort(lower, middle);
+            MergeSort(middle + 1, higher);
+            Merge(lower, middle, higher);
         }
-        Merge(0, i / 2 - 1, i / 2, V.length);
+        AddIteration();
     }
 
-    static void Merge(int a, int b, int c, int d) {
-        d = Math.min(d, V.length - 1);
-        BigInteger mer[] = new BigInteger[d - a + 1];
-        int idx = 0;
-        int or = a;
-        while (idx < mer.length) {
-            if ((a > b ? false : (c > d ? true : V[a] <= V[c]))) {
-                mer[idx++] = V[a++];
+    static void Merge(int lo, int mid, int hi) {
+        BigInteger temp[] = new BigInteger[n];
+        for (int i = lo; i <= hi; i++) {
+            temp[i] = V[i];
+        }
+        int i = lo;
+        int j = mid + 1;
+        int k = lo;
+        while (i <= mid && j <= hi) {
+            if (temp[i].compareTo(temp[j]) <= -1) {
+                V[k] = temp[i];
+                i++;
             } else {
-                mer[idx++] = V[c++];
+                V[k] = temp[j];
+                j++;
             }
+            k++;
         }
-
-        for (int i = 0; i < mer.length; i++) {
-            V[or + i] = mer[i];
+        while (i <= mid) {
+            V[k] = temp[i];
+            k++;
+            i++;
         }
     }
 
     static void RadixSort() {
-        if (V.length == 0) {
-            return;
+        BigInteger m = getMax();
+        int exp = 1;
+        BigInteger w = m.divide(new BigInteger(exp + ""));
+        while (w.compareTo(BigInteger.ZERO) > 1) {
+            countSort(exp);
+            exp *= 10;
         }
-        int[][] np = new int[V.length][2];
-        int[] q = new int[0x100];
-        int i, j, k, l, f = 0;
-        for (k = 0; k < 4; k++) {
-            for (i = 0; i < (np.length - 1); i++) {
-                np[i][1] = i + 1;
-            }
-            np[i][1] = -1;
-            for (i = 0; i < q.length; i++) {
-                q[i] = -1;
-            }
-            for (f = i = 0; i < V.length; i++) {
-                j = ((0xFF << (k << 3)) & V[i]) >> (k << 3);
-                if (q[j] == -1) {
-                    l = q[j] = f;
-                } else {
-                    l = q[j];
-                    while (np[l][1] != -1) {
-                        l = np[l][1];
-                    }
-                    np[l][1] = f;
-                    l = np[l][1];
-                }
-                f = np[f][1];
-                np[l][0] = V[i];
-                np[l][1] = -1;
-            }
-            for (l = q[i = j = 0]; i < 0x100; i++) {
-                for (l = q[i]; l != -1; l = np[l][1]) {
-                    V[j++] = np[l][0];
-                }
+        AddIteration();
+
+    }
+
+    static void countSort(int exp) {
+        BigInteger output[] = new BigInteger[n];
+        int i;
+        BigInteger count[] = new BigInteger[10];
+        Arrays.fill(count, 0);
+
+        for (i = 0; i < n; i++) {
+            int w = Integer.valueOf((V[i].divide(new BigInteger(exp + ""))).mod(BigInteger.TEN) + "");
+            count[w].add(BigInteger.ONE);
+        }
+
+        for (i = 1; i < 10; i++) {
+            count[i] = count[i].add(count[i - 1]);
+        }
+
+        for (i = n - 1; i >= 0; i--) {
+            int w = Integer.valueOf((V[i].mod(new BigInteger(exp + ""))).mod(BigInteger.TEN) + "");
+            int y = Integer.valueOf(count[w].subtract(BigInteger.ONE) + "");
+            output[y] = V[i];
+            int z = Integer.valueOf((V[i].divide(new BigInteger(exp + ""))).mod(BigInteger.TEN) + "");
+            count[z].subtract(BigInteger.ONE);
+        }
+
+        for (i = 0; i < n; i++) {
+            V[i] = output[i];
+        }
+    }
+
+    static BigInteger getMax() {
+        BigInteger mx = V[0];
+        for (int i = 1; i < n; i++) {
+            if (V[i].compareTo(mx) == -1) {
+                mx = V[i];
             }
         }
-        Show();
+        return mx;
     }
 }
